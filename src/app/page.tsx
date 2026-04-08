@@ -19,6 +19,10 @@ export default function HomePage() {
   const [showUpload, setShowUpload] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showChangePin, setShowChangePin] = useState(false);
+  const [pinForm, setPinForm] = useState({ currentPin: "", newPin: "", confirmPin: "" });
+  const [pinLoading, setPinLoading] = useState(false);
+  const [pinMsg, setPinMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   const fetchSongs = useCallback(async () => {
     try {
@@ -52,6 +56,38 @@ export default function HomePage() {
     router.replace("/login");
   }
 
+  async function handleChangePin() {
+    setPinMsg(null);
+    if (pinForm.newPin !== pinForm.confirmPin) {
+      setPinMsg({ type: "err", text: "새 PIN이 일치하지 않습니다." });
+      return;
+    }
+    if (pinForm.newPin.length < 4) {
+      setPinMsg({ type: "err", text: "PIN은 4자리 이상이어야 합니다." });
+      return;
+    }
+    setPinLoading(true);
+    try {
+      const res = await fetch("/api/auth/change-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPin: pinForm.currentPin, newPin: pinForm.newPin }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPinMsg({ type: "err", text: data.error || "변경 실패" });
+      } else {
+        setPinMsg({ type: "ok", text: "PIN이 변경되었습니다." });
+        setPinForm({ currentPin: "", newPin: "", confirmPin: "" });
+        setTimeout(() => setShowChangePin(false), 1200);
+      }
+    } catch {
+      setPinMsg({ type: "err", text: "PIN 변경 실패" });
+    } finally {
+      setPinLoading(false);
+    }
+  }
+
   // Group songs by week
   const songsByWeek = songs.reduce<Record<number, Song[]>>((acc, song) => {
     const week = song.week_number;
@@ -78,12 +114,20 @@ export default function HomePage() {
               곡 업로드
             </button>
             {member && (
-              <button
-                onClick={handleLogout}
-                className="text-slate-400 hover:text-slate-200 text-sm py-2 pl-2"
-              >
-                로그아웃
-              </button>
+              <>
+                <button
+                  onClick={() => { setShowChangePin(true); setPinMsg(null); setPinForm({ currentPin: "", newPin: "", confirmPin: "" }); }}
+                  className="text-slate-400 hover:text-slate-200 text-sm py-2"
+                >
+                  PIN 변경
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="text-slate-400 hover:text-slate-200 text-sm py-2 pl-2"
+                >
+                  로그아웃
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -144,6 +188,61 @@ export default function HomePage() {
         onClose={() => setShowUpload(false)}
         onUploaded={fetchSongs}
       />
+
+      {/* PIN 변경 모달 */}
+      {showChangePin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-sm border border-slate-700">
+            <h2 className="text-lg font-bold text-slate-100 mb-4">PIN 변경</h2>
+            <div className="space-y-3">
+              <input
+                type="password"
+                inputMode="numeric"
+                placeholder="현재 PIN"
+                value={pinForm.currentPin}
+                onChange={(e) => setPinForm({ ...pinForm, currentPin: e.target.value })}
+                className="w-full bg-slate-700 text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <input
+                type="password"
+                inputMode="numeric"
+                placeholder="새 PIN (4자리 이상)"
+                value={pinForm.newPin}
+                onChange={(e) => setPinForm({ ...pinForm, newPin: e.target.value })}
+                className="w-full bg-slate-700 text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <input
+                type="password"
+                inputMode="numeric"
+                placeholder="새 PIN 확인"
+                value={pinForm.confirmPin}
+                onChange={(e) => setPinForm({ ...pinForm, confirmPin: e.target.value })}
+                className="w-full bg-slate-700 text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            {pinMsg && (
+              <p className={`text-sm mt-3 ${pinMsg.type === "ok" ? "text-green-400" : "text-red-400"}`}>
+                {pinMsg.text}
+              </p>
+            )}
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setShowChangePin(false)}
+                className="flex-1 text-slate-400 hover:text-slate-200 text-sm py-2.5 rounded-lg border border-slate-600"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleChangePin}
+                disabled={pinLoading}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
+              >
+                {pinLoading ? "변경 중..." : "변경"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
