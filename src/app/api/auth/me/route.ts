@@ -1,5 +1,7 @@
 import { getCurrentMember } from "@/lib/auth";
 
+export const runtime = "edge";
+
 export async function GET() {
   const member = await getCurrentMember();
   if (!member) {

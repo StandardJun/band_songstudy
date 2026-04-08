@@ -1,5 +1,7 @@
 import { createServerClient } from "@/lib/supabase";
 
+export const runtime = "edge";
+
 // GET /api/members — list member names and colors (public, for login page)
 export async function GET() {
   const supabase = createServerClient();

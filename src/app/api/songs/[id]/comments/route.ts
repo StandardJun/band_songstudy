@@ -2,6 +2,8 @@ import { createServerClient } from "@/lib/supabase";
 import { getCurrentMember } from "@/lib/auth";
 import type { NextRequest } from "next/server";
 
+export const runtime = "edge";
+
 // GET /api/songs/[id]/comments — get all comments with member info
 export async function GET(
   _request: NextRequest,

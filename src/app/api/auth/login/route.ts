@@ -1,6 +1,15 @@
 import { createServerClient } from "@/lib/supabase";
 import { createToken, setAuthCookie } from "@/lib/auth";
-import { createHash } from "crypto";
+
+export const runtime = "edge";
+
+async function sha256(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
 
 export async function POST(request: Request) {
   try {
@@ -30,7 +39,7 @@ export async function POST(request: Request) {
     }
 
     // Verify PIN (SHA-256)
-    const pinHash = createHash("sha256").update(pin).digest("hex");
+    const pinHash = await sha256(pin);
     if (pinHash !== member.pin_hash) {
       return Response.json(
         { error: "PIN이 올바르지 않습니다." },

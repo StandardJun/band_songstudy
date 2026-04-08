@@ -1,6 +1,8 @@
 import { createServerClient } from "@/lib/supabase";
 import { getCurrentMember } from "@/lib/auth";
 
+export const runtime = "edge";
+
 // GET /api/songs — list all songs with member info and comment count
 export async function GET() {
   const supabase = createServerClient();

@@ -1,6 +1,8 @@
 import { createServerClient } from "@/lib/supabase";
 import type { NextRequest } from "next/server";
 
+export const runtime = "edge";
+
 // GET /api/songs/[id] — get single song with member info
 export async function GET(
   _request: NextRequest,
