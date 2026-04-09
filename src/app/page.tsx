@@ -325,8 +325,8 @@ export default function HomePage() {
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">색상 변경</h2>
             <div className="grid grid-cols-4 gap-2">
               {COLOR_PALETTE.map((color) => {
-                const usedBy = allMembers.find((m) => m.color === color && m.id !== member?.id);
-                const isCurrent = member?.color === color;
+                const usedBy = allMembers.find((m) => m.color.toLowerCase() === color.toLowerCase() && m.id !== member?.id);
+                const isCurrent = member?.color.toLowerCase() === color.toLowerCase();
                 return (
                   <button
                     key={color}

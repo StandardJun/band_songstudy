@@ -19,15 +19,18 @@ export async function PUT(request: Request) {
       );
     }
 
+    const normalizedColor = color.toLowerCase();
     const supabase = createServerClient();
 
-    // Check if another member already uses this color
-    const { data: existing } = await supabase
+    // Check if another member already uses this color (case-insensitive)
+    const { data: allMembers } = await supabase
       .from("members")
-      .select("id")
-      .eq("color", color)
-      .neq("id", member.id)
-      .limit(1);
+      .select("id, color")
+      .neq("id", member.id);
+
+    const existing = (allMembers || []).filter(
+      (m) => m.color.toLowerCase() === normalizedColor
+    );
 
     if (existing && existing.length > 0) {
       return Response.json(
@@ -38,7 +41,7 @@ export async function PUT(request: Request) {
 
     const { error } = await supabase
       .from("members")
-      .update({ color })
+      .update({ color: normalizedColor })
       .eq("id", member.id);
 
     if (error) {
