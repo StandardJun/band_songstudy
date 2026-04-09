@@ -323,25 +323,28 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-sm border border-gray-200 dark:border-slate-700">
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">색상 변경</h2>
-            <div className="grid grid-cols-6 gap-3">
+            <div className="grid grid-cols-4 gap-2">
               {COLOR_PALETTE.map((color) => {
-                const isUsed = usedColors.includes(color);
+                const usedBy = allMembers.find((m) => m.color === color && m.id !== member?.id);
                 const isCurrent = member?.color === color;
                 return (
                   <button
                     key={color}
-                    disabled={isUsed || colorLoading}
+                    disabled={!!usedBy || colorLoading}
                     onClick={() => handleColorChange(color)}
-                    className={`w-10 h-10 rounded-full transition-all ${
+                    className={`relative flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all ${
                       isCurrent
-                        ? "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-800 ring-red-500 scale-110"
-                        : isUsed
-                          ? "opacity-20 cursor-not-allowed"
-                          : "hover:scale-110 hover:ring-2 hover:ring-offset-2 hover:ring-offset-white dark:hover:ring-offset-slate-800 hover:ring-slate-400"
+                        ? "border-red-500 bg-red-500/10 dark:bg-red-500/10"
+                        : usedBy
+                          ? "border-gray-200 dark:border-slate-700 opacity-50 cursor-not-allowed"
+                          : "border-gray-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500"
                     }`}
-                    style={{ backgroundColor: color }}
-                    title={isUsed ? "다른 멤버가 사용 중" : isCurrent ? "현재 색상" : ""}
-                  />
+                  >
+                    <div className="w-5 h-5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                    <span className="text-xs text-slate-600 dark:text-slate-300 truncate">
+                      {isCurrent ? "나" : usedBy ? usedBy.name : ""}
+                    </span>
+                  </button>
                 );
               })}
             </div>
