@@ -61,9 +61,11 @@ export default function UploadModal({
           });
           const savedMB = ((file.size - uploadFile.size) / 1024 / 1024).toFixed(1);
           setProgress(`압축 완료 (${savedMB}MB 절약). 업로드 중...`);
-        } catch {
-          setError("오디오 압축에 실패했습니다. 파일 형식을 확인해주세요.");
-          return;
+        } catch (compressErr) {
+          console.error("Audio compression failed:", compressErr);
+          // 압축 실패 시 원본 그대로 업로드 시도
+          setProgress("압축 실패 — 원본 파일로 업로드 시도 중...");
+          uploadFile = file;
         }
       }
 
