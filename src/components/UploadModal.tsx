@@ -50,12 +50,12 @@ export default function UploadModal({
       // 0. Compress audio if > 10MB
       let uploadFile = file;
       if (file.size > 10 * 1024 * 1024) {
-        setProgress("오디오 압축 중...");
+        setProgress("압축 엔진 로딩 중...");
         try {
           uploadFile = await compressAudioToMp3(file, (p: CompressProgress) => {
-            if (p.stage === "decoding") {
-              setProgress("오디오 디코딩 중...");
-            } else {
+            if (p.stage === "loading") {
+              setProgress("압축 엔진 로딩 중... (첫 사용 시 시간이 걸립니다)");
+            } else if (p.stage === "compressing") {
               setProgress(`MP3 변환 중... ${p.percent}%`);
             }
           });
