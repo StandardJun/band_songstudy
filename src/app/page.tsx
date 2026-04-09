@@ -16,15 +16,15 @@ const COLOR_PALETTE = [
   "#ef4444", // red
   "#f97316", // orange
   "#f59e0b", // amber
+  "#10b981", // emerald (seed default)
   "#22c55e", // green
   "#14b8a6", // teal
+  "#06b6d4", // cyan
   "#3b82f6", // blue
   "#6366f1", // indigo
   "#8b5cf6", // violet
   "#d946ef", // fuchsia
   "#ec4899", // pink
-  "#06b6d4", // cyan
-  "#84cc16", // lime
 ];
 
 export default function HomePage() {
