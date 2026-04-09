@@ -26,11 +26,9 @@ interface WaveformPlayerProps {
   onTimeClick?: (time: number) => void;
   onRegionSelect?: (start: number, end: number) => void;
   onMarkerClick?: (commentId: string) => void;
-  onCommentAtCurrentTime?: () => void;
+  onOpenComment?: () => void;
   onRegionModeToggle?: () => void;
-  onGeneralComment?: () => void;
   regionMode?: boolean;
-  commentFormTime?: number | null;
 }
 
 const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
@@ -41,11 +39,9 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
       onTimeClick,
       onRegionSelect,
       onMarkerClick,
-      onCommentAtCurrentTime,
+      onOpenComment,
       onRegionModeToggle,
-      onGeneralComment,
       regionMode = false,
-      commentFormTime,
     },
     ref
   ) {
@@ -78,8 +74,8 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
         container: containerRef.current,
         height: 64,
         waveColor: "#475569",
-        progressColor: "#6366f1",
-        cursorColor: "#818cf8",
+        progressColor: "#ef4444",
+        cursorColor: "#f87171",
         barWidth: 2,
         barGap: 1,
         barRadius: 2,
@@ -211,7 +207,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
               <button
                 onClick={togglePlay}
                 disabled={!isReady}
-                className="p-2 bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-300 dark:disabled:bg-slate-700 rounded-full text-white transition-colors"
+                className="p-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 dark:disabled:bg-slate-700 rounded-full text-white transition-colors"
               >
                 {isPlaying ? (
                   <svg
@@ -253,33 +249,27 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
               </span>
             </div>
 
-            {/* Comment action buttons */}
+            {/* Comment button */}
             <div className="flex items-center gap-2">
-              <button
-                onClick={onCommentAtCurrentTime}
-                disabled={!isReady}
-                className="px-3 py-2 text-xs bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50 text-slate-700 dark:text-slate-300 rounded transition-colors"
-              >
-                시점 댓글
-              </button>
-              <button
-                onClick={onRegionModeToggle}
-                disabled={!isReady}
-                className={`px-3 py-2 text-xs rounded transition-colors ${
-                  regionMode
-                    ? "bg-yellow-500 hover:bg-yellow-600 text-white"
-                    : "bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"
-                } disabled:opacity-50`}
-              >
-                {regionMode ? "구간 선택 중..." : "구간 댓글"}
-              </button>
-              <button
-                onClick={onGeneralComment}
-                disabled={!isReady}
-                className="px-3 py-2 text-xs bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50 text-slate-700 dark:text-slate-300 rounded transition-colors"
-              >
-                일반 댓글
-              </button>
+              {regionMode ? (
+                <button
+                  onClick={onRegionModeToggle}
+                  className="px-3 py-2 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded transition-colors"
+                >
+                  구간 선택 중... (취소)
+                </button>
+              ) : (
+                <button
+                  onClick={onOpenComment}
+                  disabled={!isReady}
+                  className="px-3 py-2 text-xs bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50 text-slate-700 dark:text-slate-300 rounded transition-colors flex items-center gap-1"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                  </svg>
+                  댓글
+                </button>
+              )}
             </div>
           </div>
         </div>

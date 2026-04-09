@@ -85,7 +85,7 @@ export default function CommentThread({
     <div
       id={`comment-${comment.id}`}
       className={`transition-colors duration-500 ${
-        isHighlighted ? "bg-indigo-100/30 dark:bg-indigo-900/30" : ""
+        isHighlighted ? "bg-red-100/30 dark:bg-red-900/30" : ""
       }`}
     >
       {/* Main comment */}
@@ -110,7 +110,7 @@ export default function CommentThread({
             {timeDisplay && (
               <button
                 onClick={() => comment.time_start != null && onTimestampClick(comment.time_start)}
-                className="text-xs text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 font-mono transition-colors"
+                className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 font-mono transition-colors"
               >
                 {timeDisplay}
               </button>
@@ -124,7 +124,7 @@ export default function CommentThread({
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 rows={2}
-                className="w-full bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-3 py-2 text-sm text-slate-800 dark:text-slate-200 resize-none focus:outline-none focus:border-indigo-500"
+                className="w-full bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-3 py-2 text-sm text-slate-800 dark:text-slate-200 resize-none focus:outline-none focus:border-red-500"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleEdit();
                   if (e.key === "Escape") { setEditing(false); setEditContent(comment.content); }
@@ -134,7 +134,7 @@ export default function CommentThread({
                 <button
                   onClick={handleEdit}
                   disabled={editLoading || !editContent.trim()}
-                  className="px-2 py-1 text-xs bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white rounded transition-colors"
+                  className="px-2 py-1 text-xs bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white rounded transition-colors"
                 >
                   {editLoading ? "..." : "저장"}
                 </button>
@@ -305,7 +305,7 @@ function ReplyItem({
     <div
       id={`comment-${reply.id}`}
       className={`flex gap-3 py-2 px-3 rounded-lg transition-colors duration-500 ${
-        isReplyHighlighted ? "bg-indigo-100/30 dark:bg-indigo-900/30" : ""
+        isReplyHighlighted ? "bg-red-100/30 dark:bg-red-900/30" : ""
       }`}
       style={{ borderLeft: `2px solid ${replyColor}` }}
     >
@@ -328,7 +328,7 @@ function ReplyItem({
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
               rows={1}
-              className="w-full bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-3 py-2 text-sm text-slate-800 dark:text-slate-200 resize-none focus:outline-none focus:border-indigo-500"
+              className="w-full bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-3 py-2 text-sm text-slate-800 dark:text-slate-200 resize-none focus:outline-none focus:border-red-500"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleEdit();
                 if (e.key === "Escape") { setEditing(false); setEditContent(reply.content); }
@@ -338,7 +338,7 @@ function ReplyItem({
               <button
                 onClick={handleEdit}
                 disabled={editLoading || !editContent.trim()}
-                className="px-2 py-1 text-xs bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white rounded transition-colors"
+                className="px-2 py-1 text-xs bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white rounded transition-colors"
               >
                 {editLoading ? "..." : "저장"}
               </button>

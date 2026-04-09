@@ -80,18 +80,10 @@ export default function SongDetailPage() {
     fetchComments();
   }, [fetchComments]);
 
-  // Comment at current time
-  const handleCommentAtCurrentTime = useCallback(() => {
+  // Open comment form (default: point at current time)
+  const handleOpenComment = useCallback(() => {
     const time = playerRef.current?.getCurrentTime() ?? 0;
     setCommentTimeStart(time);
-    setCommentTimeEnd(null);
-    setShowCommentForm(true);
-    setRegionMode(false);
-  }, []);
-
-  // General comment (no timestamp)
-  const handleGeneralComment = useCallback(() => {
-    setCommentTimeStart(null);
     setCommentTimeEnd(null);
     setShowCommentForm(true);
     setRegionMode(false);
@@ -188,11 +180,9 @@ export default function SongDetailPage() {
               comments={comments}
               onRegionSelect={handleRegionSelect}
               onMarkerClick={handleMarkerClick}
-              onCommentAtCurrentTime={handleCommentAtCurrentTime}
+              onOpenComment={handleOpenComment}
               onRegionModeToggle={handleRegionModeToggle}
-              onGeneralComment={handleGeneralComment}
               regionMode={regionMode}
-              commentFormTime={commentTimeStart}
             />
           )}
         </div>
@@ -213,6 +203,8 @@ export default function SongDetailPage() {
                 setCommentTimeStart(null);
                 setCommentTimeEnd(null);
               }}
+              onGetCurrentTime={() => playerRef.current?.getCurrentTime() ?? 0}
+              onStartRegionSelect={() => setRegionMode(true)}
             />
           </div>
         )}

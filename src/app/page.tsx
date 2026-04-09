@@ -167,29 +167,39 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowUpload(true)}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+              className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors"
+              title="곡 업로드"
             >
-              곡 업로드
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
             </button>
             {member && (
               <>
                 <button
                   onClick={() => { setShowChangePin(true); setPinMsg(null); setPinForm({ currentPin: "", newPin: "", confirmPin: "" }); }}
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm py-2"
+                  className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-2"
+                  title="PIN 변경"
                 >
-                  PIN 변경
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                  </svg>
                 </button>
                 <button
                   onClick={() => { setShowColorPicker(true); setColorMsg(null); }}
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm py-2"
+                  className="p-2"
+                  title="색상 변경"
                 >
-                  색상 변경
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-slate-600" style={{ backgroundColor: member.color }} />
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm py-2 pl-2"
+                  className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-2"
+                  title="로그아웃"
                 >
-                  로그아웃
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3-3l3-3m0 0l-3-3m3 3H9" />
+                  </svg>
                 </button>
               </>
             )}
@@ -213,7 +223,7 @@ export default function HomePage() {
             <p className="text-red-500 dark:text-red-400 text-sm mb-3">{error}</p>
             <button
               onClick={fetchSongs}
-              className="text-sm text-indigo-500 hover:text-indigo-400 transition-colors"
+              className="text-sm text-red-500 hover:text-red-400 transition-colors"
             >
               다시 시도
             </button>
@@ -224,7 +234,7 @@ export default function HomePage() {
             <p className="text-sm mb-4">첫 곡을 업로드해보세요!</p>
             <button
               onClick={() => setShowUpload(true)}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               곡 업로드
             </button>
@@ -265,7 +275,7 @@ export default function HomePage() {
                 placeholder="현재 PIN"
                 value={pinForm.currentPin}
                 onChange={(e) => setPinForm({ ...pinForm, currentPin: e.target.value })}
-                className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               <input
                 type="password"
@@ -273,7 +283,7 @@ export default function HomePage() {
                 placeholder="새 PIN (4자리 이상)"
                 value={pinForm.newPin}
                 onChange={(e) => setPinForm({ ...pinForm, newPin: e.target.value })}
-                className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               <input
                 type="password"
@@ -281,7 +291,7 @@ export default function HomePage() {
                 placeholder="새 PIN 확인"
                 value={pinForm.confirmPin}
                 onChange={(e) => setPinForm({ ...pinForm, confirmPin: e.target.value })}
-                className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
             {pinMsg && (
@@ -299,7 +309,7 @@ export default function HomePage() {
               <button
                 onClick={handleChangePin}
                 disabled={pinLoading}
-                className="flex-1 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
+                className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
               >
                 {pinLoading ? "변경 중..." : "변경"}
               </button>
@@ -324,7 +334,7 @@ export default function HomePage() {
                     onClick={() => handleColorChange(color)}
                     className={`w-10 h-10 rounded-full transition-all ${
                       isCurrent
-                        ? "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-800 ring-indigo-500 scale-110"
+                        ? "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-800 ring-red-500 scale-110"
                         : isUsed
                           ? "opacity-20 cursor-not-allowed"
                           : "hover:scale-110 hover:ring-2 hover:ring-offset-2 hover:ring-offset-white dark:hover:ring-offset-slate-800 hover:ring-slate-400"

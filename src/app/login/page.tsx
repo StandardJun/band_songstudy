@@ -118,7 +118,7 @@ export default function LoginPage() {
                 value={pin}
                 onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                className="w-full bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-center text-2xl tracking-[0.5em] py-3 px-4 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-indigo-500 focus:outline-none placeholder:text-sm placeholder:tracking-normal"
+                className="w-full bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-center text-2xl tracking-[0.5em] py-3 px-4 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-red-500 focus:outline-none placeholder:text-sm placeholder:tracking-normal"
                 autoFocus
               />
             </div>
@@ -130,7 +130,7 @@ export default function LoginPage() {
             <button
               onClick={handleLogin}
               disabled={loading || pin.length < 4}
-              className="w-full py-3 px-4 bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-200 dark:disabled:bg-slate-700 disabled:text-gray-400 dark:disabled:text-slate-500 text-white font-medium rounded-lg transition-colors"
+              className="w-full py-3 px-4 bg-red-500 hover:bg-red-600 disabled:bg-gray-200 dark:disabled:bg-slate-700 disabled:text-gray-400 dark:disabled:text-slate-500 text-white font-medium rounded-lg transition-colors"
             >
               {loading ? "로그인 중..." : "로그인"}
             </button>

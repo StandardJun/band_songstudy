@@ -12,6 +12,8 @@ interface CommentFormProps {
   parentId?: string | null;
   onSubmit: () => void;
   onCancel?: () => void;
+  onGetCurrentTime?: () => number;
+  onStartRegionSelect?: () => void;
   placeholder?: string;
   compact?: boolean;
 }
@@ -23,6 +25,8 @@ export default function CommentForm({
   parentId = null,
   onSubmit,
   onCancel,
+  onGetCurrentTime,
+  onStartRegionSelect,
   placeholder = "댓글을 입력하세요...",
   compact = false,
 }: CommentFormProps) {
@@ -140,7 +144,7 @@ export default function CommentForm({
                 onClick={() => setCommentType(key)}
                 className={`px-2.5 py-1 text-xs rounded transition-colors ${
                   commentType === key
-                    ? "bg-indigo-500 text-white"
+                    ? "bg-red-500 text-white"
                     : "bg-gray-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                 }`}
               >
@@ -157,20 +161,30 @@ export default function CommentForm({
                 value={manualStart}
                 onChange={(e) => setManualStart(e.target.value)}
                 placeholder="0:00"
-                className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-700 dark:text-slate-300 w-20 focus:outline-none focus:border-indigo-500"
+                className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-700 dark:text-slate-300 w-20 focus:outline-none focus:border-red-500"
               />
+              {onGetCurrentTime && (
+                <button
+                  type="button"
+                  onClick={() => setManualStart(formatTime(onGetCurrentTime()))}
+                  className="px-2 py-1 text-xs bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded transition-colors"
+                  title="현재 재생 시점 가져오기"
+                >
+                  현재 시점
+                </button>
+              )}
             </div>
           )}
 
           {commentType === "range" && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <label className="text-xs text-slate-500 dark:text-slate-400 shrink-0">구간</label>
               <input
                 type="text"
                 value={manualStart}
                 onChange={(e) => setManualStart(e.target.value)}
                 placeholder="0:00"
-                className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-700 dark:text-slate-300 w-20 focus:outline-none focus:border-indigo-500"
+                className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-700 dark:text-slate-300 w-20 focus:outline-none focus:border-red-500"
               />
               <span className="text-xs text-slate-400">-</span>
               <input
@@ -178,8 +192,28 @@ export default function CommentForm({
                 value={manualEnd}
                 onChange={(e) => setManualEnd(e.target.value)}
                 placeholder="0:00"
-                className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-700 dark:text-slate-300 w-20 focus:outline-none focus:border-indigo-500"
+                className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-700 dark:text-slate-300 w-20 focus:outline-none focus:border-red-500"
               />
+              {onGetCurrentTime && (
+                <button
+                  type="button"
+                  onClick={() => setManualStart(formatTime(onGetCurrentTime()))}
+                  className="px-2 py-1 text-xs bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded transition-colors"
+                  title="현재 시점을 시작으로"
+                >
+                  시작=현재
+                </button>
+              )}
+              {onStartRegionSelect && (
+                <button
+                  type="button"
+                  onClick={onStartRegionSelect}
+                  className="px-2 py-1 text-xs bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-500/20 rounded transition-colors"
+                  title="파형에서 드래그로 구간 선택"
+                >
+                  파형에서 선택
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -192,7 +226,7 @@ export default function CommentForm({
           onChange={(e) => setContent(e.target.value)}
           placeholder={placeholder}
           rows={compact ? 1 : 2}
-          className="flex-1 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-3 py-2 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 resize-none focus:outline-none focus:border-indigo-500"
+          className="flex-1 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded px-3 py-2 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 resize-none focus:outline-none focus:border-red-500"
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
               handleSubmit(e);
@@ -203,7 +237,7 @@ export default function CommentForm({
           <button
             type="submit"
             disabled={!content.trim() || submitting}
-            className="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-200 dark:disabled:bg-slate-700 disabled:text-gray-400 dark:disabled:text-slate-500 text-white text-sm rounded transition-colors"
+            className="px-3 py-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-200 dark:disabled:bg-slate-700 disabled:text-gray-400 dark:disabled:text-slate-500 text-white text-sm rounded transition-colors"
           >
             {submitting ? "..." : "작성"}
           </button>

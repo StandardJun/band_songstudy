@@ -111,7 +111,7 @@ export default function UploadModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="곡 제목"
-              className="w-full bg-gray-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 py-2 px-3 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-indigo-500 focus:outline-none text-sm"
+              className="w-full bg-gray-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 py-2 px-3 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-red-500 focus:outline-none text-sm"
             />
           </div>
 
@@ -124,7 +124,7 @@ export default function UploadModal({
               value={artist}
               onChange={(e) => setArtist(e.target.value)}
               placeholder="아티스트명"
-              className="w-full bg-gray-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 py-2 px-3 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-indigo-500 focus:outline-none text-sm"
+              className="w-full bg-gray-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 py-2 px-3 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-red-500 focus:outline-none text-sm"
             />
           </div>
 
@@ -138,7 +138,7 @@ export default function UploadModal({
               onChange={(e) => setWeekNumber(e.target.value)}
               placeholder="1"
               min={1}
-              className="w-full bg-gray-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 py-2 px-3 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-indigo-500 focus:outline-none text-sm"
+              className="w-full bg-gray-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 py-2 px-3 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-red-500 focus:outline-none text-sm"
             />
           </div>
 
@@ -147,7 +147,7 @@ export default function UploadModal({
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-200 dark:disabled:bg-slate-700 disabled:text-gray-400 dark:disabled:text-slate-500 text-white font-medium rounded-lg transition-colors text-sm"
+            className="w-full py-2.5 bg-red-500 hover:bg-red-600 disabled:bg-gray-200 dark:disabled:bg-slate-700 disabled:text-gray-400 dark:disabled:text-slate-500 text-white font-medium rounded-lg transition-colors text-sm"
           >
             {loading ? "업로드 중..." : "업로드"}
           </button>
