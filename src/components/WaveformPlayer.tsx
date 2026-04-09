@@ -28,6 +28,7 @@ interface WaveformPlayerProps {
   onMarkerClick?: (commentId: string) => void;
   onCommentAtCurrentTime?: () => void;
   onRegionModeToggle?: () => void;
+  onGeneralComment?: () => void;
   regionMode?: boolean;
   commentFormTime?: number | null;
 }
@@ -42,6 +43,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
       onMarkerClick,
       onCommentAtCurrentTime,
       onRegionModeToggle,
+      onGeneralComment,
       regionMode = false,
       commentFormTime,
     },
@@ -115,7 +117,6 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
 
         const handleRegionCreated = (region: { start: number; end: number }) => {
           onRegionSelect?.(region.start, region.end);
-          // Clear all user-created regions after capture
           setTimeout(() => {
             regions.clearRegions();
           }, 100);
@@ -124,7 +125,6 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
         regions.on("region-created", handleRegionCreated);
         return () => {
           regions.un("region-created", handleRegionCreated);
-          // Use try-catch because disableDragSelection may not exist
           try {
             regions.clearRegions();
           } catch {
@@ -150,8 +150,8 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
 
     if (loadError) {
       return (
-        <div className="bg-[#16213e] rounded-lg p-6 text-center border border-slate-700">
-          <p className="text-red-400 text-sm mb-3">
+        <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-6 text-center border border-gray-200 dark:border-slate-700">
+          <p className="text-red-500 dark:text-red-400 text-sm mb-3">
             오디오 파일을 불러올 수 없습니다.
           </p>
           <audio controls src={audioUrl} className="mx-auto" />
@@ -160,7 +160,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
     }
 
     return (
-      <div className="bg-[#16213e] rounded-lg border border-slate-700/50 overflow-hidden">
+      <div className="bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700/50 overflow-hidden">
         {/* Waveform */}
         <div className="px-4 pt-4 pb-1">
           {!isReady && (
@@ -194,7 +194,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
             <div className="flex items-center gap-2">
               <button
                 onClick={skipBack}
-                className="p-2.5 text-slate-400 hover:text-slate-200 transition-colors"
+                className="p-2.5 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
                 title="-5초"
               >
                 <svg
@@ -211,7 +211,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
               <button
                 onClick={togglePlay}
                 disabled={!isReady}
-                className="p-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 rounded-full text-white transition-colors"
+                className="p-2 bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-300 dark:disabled:bg-slate-700 rounded-full text-white transition-colors"
               >
                 {isPlaying ? (
                   <svg
@@ -234,7 +234,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
 
               <button
                 onClick={skipForward}
-                className="p-2.5 text-slate-400 hover:text-slate-200 transition-colors"
+                className="p-2.5 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
                 title="+5초"
               >
                 <svg
@@ -248,7 +248,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
                 </svg>
               </button>
 
-              <span className="text-xs text-slate-400 ml-2 tabular-nums">
+              <span className="text-xs text-slate-500 dark:text-slate-400 ml-2 tabular-nums">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
             </div>
@@ -258,20 +258,27 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
               <button
                 onClick={onCommentAtCurrentTime}
                 disabled={!isReady}
-                className="px-3 py-2 text-xs bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-slate-300 rounded transition-colors"
+                className="px-3 py-2 text-xs bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50 text-slate-700 dark:text-slate-300 rounded transition-colors"
               >
-                현재 위치에 댓글
+                시점 댓글
               </button>
               <button
                 onClick={onRegionModeToggle}
                 disabled={!isReady}
                 className={`px-3 py-2 text-xs rounded transition-colors ${
                   regionMode
-                    ? "bg-yellow-600 hover:bg-yellow-500 text-white"
-                    : "bg-slate-700 hover:bg-slate-600 text-slate-300"
+                    ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                    : "bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"
                 } disabled:opacity-50`}
               >
-                {regionMode ? "구간 선택 중..." : "구간 선택"}
+                {regionMode ? "구간 선택 중..." : "구간 댓글"}
+              </button>
+              <button
+                onClick={onGeneralComment}
+                disabled={!isReady}
+                className="px-3 py-2 text-xs bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 disabled:opacity-50 text-slate-700 dark:text-slate-300 rounded transition-colors"
+              >
+                일반 댓글
               </button>
             </div>
           </div>

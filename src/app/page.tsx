@@ -12,10 +12,26 @@ interface MemberInfo {
   color: string;
 }
 
+const COLOR_PALETTE = [
+  "#ef4444", // red
+  "#f97316", // orange
+  "#f59e0b", // amber
+  "#22c55e", // green
+  "#14b8a6", // teal
+  "#3b82f6", // blue
+  "#6366f1", // indigo
+  "#8b5cf6", // violet
+  "#d946ef", // fuchsia
+  "#ec4899", // pink
+  "#06b6d4", // cyan
+  "#84cc16", // lime
+];
+
 export default function HomePage() {
   const router = useRouter();
   const [songs, setSongs] = useState<Song[]>([]);
   const [member, setMember] = useState<MemberInfo | null>(null);
+  const [allMembers, setAllMembers] = useState<MemberInfo[]>([]);
   const [showUpload, setShowUpload] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +39,9 @@ export default function HomePage() {
   const [pinForm, setPinForm] = useState({ currentPin: "", newPin: "", confirmPin: "" });
   const [pinLoading, setPinLoading] = useState(false);
   const [pinMsg, setPinMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [colorLoading, setColorLoading] = useState(false);
+  const [colorMsg, setColorMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   const fetchSongs = useCallback(async () => {
     try {
@@ -39,8 +58,17 @@ export default function HomePage() {
     }
   }, []);
 
+  const fetchMembers = useCallback(async () => {
+    try {
+      const res = await fetch("/api/members");
+      const data = await res.json();
+      setAllMembers(data.members || []);
+    } catch {
+      // silent
+    }
+  }, []);
+
   useEffect(() => {
-    // Fetch current member
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((data) => {
@@ -49,7 +77,8 @@ export default function HomePage() {
       .catch(() => {});
 
     fetchSongs();
-  }, [fetchSongs]);
+    fetchMembers();
+  }, [fetchSongs, fetchMembers]);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -88,6 +117,35 @@ export default function HomePage() {
     }
   }
 
+  async function handleColorChange(color: string) {
+    setColorMsg(null);
+    setColorLoading(true);
+    try {
+      const res = await fetch("/api/members/color", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ color }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setColorMsg({ type: "err", text: data.error || "색상 변경 실패" });
+      } else {
+        setColorMsg({ type: "ok", text: "색상이 변경되었습니다." });
+        setMember((prev) => (prev ? { ...prev, color } : prev));
+        fetchMembers();
+        setTimeout(() => setShowColorPicker(false), 800);
+      }
+    } catch {
+      setColorMsg({ type: "err", text: "색상 변경 실패" });
+    } finally {
+      setColorLoading(false);
+    }
+  }
+
+  const usedColors = allMembers
+    .filter((m) => m.id !== member?.id)
+    .map((m) => m.color);
+
   // Group songs by week
   const songsByWeek = songs.reduce<Record<number, Song[]>>((acc, song) => {
     const week = song.week_number;
@@ -101,15 +159,15 @@ export default function HomePage() {
     .sort((a, b) => b - a);
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-white dark:bg-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+      <header className="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-gray-200 dark:border-slate-800">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-          <h1 className="text-lg font-bold text-slate-100">Song Study</h1>
+          <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">Song Study</h1>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowUpload(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+              className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
             >
               곡 업로드
             </button>
@@ -117,13 +175,19 @@ export default function HomePage() {
               <>
                 <button
                   onClick={() => { setShowChangePin(true); setPinMsg(null); setPinForm({ currentPin: "", newPin: "", confirmPin: "" }); }}
-                  className="text-slate-400 hover:text-slate-200 text-sm py-2"
+                  className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm py-2"
                 >
                   PIN 변경
                 </button>
                 <button
+                  onClick={() => { setShowColorPicker(true); setColorMsg(null); }}
+                  className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm py-2"
+                >
+                  색상 변경
+                </button>
+                <button
                   onClick={handleLogout}
-                  className="text-slate-400 hover:text-slate-200 text-sm py-2 pl-2"
+                  className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm py-2 pl-2"
                 >
                   로그아웃
                 </button>
@@ -138,18 +202,18 @@ export default function HomePage() {
         {loading ? (
           <div className="space-y-3 animate-pulse">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                <div className="h-4 bg-slate-700 rounded w-2/3 mb-2" />
-                <div className="h-3 bg-slate-700/60 rounded w-1/3" />
+              <div key={i} className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-slate-700">
+                <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded w-2/3 mb-2" />
+                <div className="h-3 bg-gray-100 dark:bg-slate-700/60 rounded w-1/3" />
               </div>
             ))}
           </div>
         ) : error ? (
           <div className="text-center py-12">
-            <p className="text-red-400 text-sm mb-3">{error}</p>
+            <p className="text-red-500 dark:text-red-400 text-sm mb-3">{error}</p>
             <button
               onClick={fetchSongs}
-              className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="text-sm text-indigo-500 hover:text-indigo-400 transition-colors"
             >
               다시 시도
             </button>
@@ -160,7 +224,7 @@ export default function HomePage() {
             <p className="text-sm mb-4">첫 곡을 업로드해보세요!</p>
             <button
               onClick={() => setShowUpload(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               곡 업로드
             </button>
@@ -169,7 +233,7 @@ export default function HomePage() {
           <div className="space-y-8">
             {sortedWeeks.map((week) => (
               <section key={week}>
-                <h2 className="text-sm font-medium text-slate-400 mb-3">
+                <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">
                   {week}주차
                 </h2>
                 <div className="space-y-2">
@@ -192,8 +256,8 @@ export default function HomePage() {
       {/* PIN 변경 모달 */}
       {showChangePin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-          <div className="bg-slate-800 rounded-xl p-6 w-full max-w-sm border border-slate-700">
-            <h2 className="text-lg font-bold text-slate-100 mb-4">PIN 변경</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-sm border border-gray-200 dark:border-slate-700">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">PIN 변경</h2>
             <div className="space-y-3">
               <input
                 type="password"
@@ -201,7 +265,7 @@ export default function HomePage() {
                 placeholder="현재 PIN"
                 value={pinForm.currentPin}
                 onChange={(e) => setPinForm({ ...pinForm, currentPin: e.target.value })}
-                className="w-full bg-slate-700 text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <input
                 type="password"
@@ -209,7 +273,7 @@ export default function HomePage() {
                 placeholder="새 PIN (4자리 이상)"
                 value={pinForm.newPin}
                 onChange={(e) => setPinForm({ ...pinForm, newPin: e.target.value })}
-                className="w-full bg-slate-700 text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <input
                 type="password"
@@ -217,27 +281,71 @@ export default function HomePage() {
                 placeholder="새 PIN 확인"
                 value={pinForm.confirmPin}
                 onChange={(e) => setPinForm({ ...pinForm, confirmPin: e.target.value })}
-                className="w-full bg-slate-700 text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             {pinMsg && (
-              <p className={`text-sm mt-3 ${pinMsg.type === "ok" ? "text-green-400" : "text-red-400"}`}>
+              <p className={`text-sm mt-3 ${pinMsg.type === "ok" ? "text-green-500 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
                 {pinMsg.text}
               </p>
             )}
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setShowChangePin(false)}
-                className="flex-1 text-slate-400 hover:text-slate-200 text-sm py-2.5 rounded-lg border border-slate-600"
+                className="flex-1 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm py-2.5 rounded-lg border border-gray-300 dark:border-slate-600"
               >
                 취소
               </button>
               <button
                 onClick={handleChangePin}
                 disabled={pinLoading}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
+                className="flex-1 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
               >
                 {pinLoading ? "변경 중..." : "변경"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 색상 변경 모달 */}
+      {showColorPicker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-sm border border-gray-200 dark:border-slate-700">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">색상 변경</h2>
+            <div className="grid grid-cols-6 gap-3">
+              {COLOR_PALETTE.map((color) => {
+                const isUsed = usedColors.includes(color);
+                const isCurrent = member?.color === color;
+                return (
+                  <button
+                    key={color}
+                    disabled={isUsed || colorLoading}
+                    onClick={() => handleColorChange(color)}
+                    className={`w-10 h-10 rounded-full transition-all ${
+                      isCurrent
+                        ? "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-800 ring-indigo-500 scale-110"
+                        : isUsed
+                          ? "opacity-20 cursor-not-allowed"
+                          : "hover:scale-110 hover:ring-2 hover:ring-offset-2 hover:ring-offset-white dark:hover:ring-offset-slate-800 hover:ring-slate-400"
+                    }`}
+                    style={{ backgroundColor: color }}
+                    title={isUsed ? "다른 멤버가 사용 중" : isCurrent ? "현재 색상" : ""}
+                  />
+                );
+              })}
+            </div>
+            {colorMsg && (
+              <p className={`text-sm mt-3 ${colorMsg.type === "ok" ? "text-green-500 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
+                {colorMsg.text}
+              </p>
+            )}
+            <div className="mt-4">
+              <button
+                onClick={() => setShowColorPicker(false)}
+                className="w-full text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm py-2.5 rounded-lg border border-gray-300 dark:border-slate-600"
+              >
+                닫기
               </button>
             </div>
           </div>

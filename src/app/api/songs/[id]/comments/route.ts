@@ -48,9 +48,9 @@ export async function POST(
   const body = await request.json();
   const { time_start, time_end, content, parent_id } = body;
 
-  if (time_start == null || !content?.trim()) {
+  if (!content?.trim()) {
     return Response.json(
-      { error: "시간과 내용을 입력해주세요." },
+      { error: "내용을 입력해주세요." },
       { status: 400 }
     );
   }
@@ -62,7 +62,7 @@ export async function POST(
     .insert({
       song_id: id,
       member_id: member.id,
-      time_start,
+      time_start: time_start ?? null,
       time_end: time_end ?? null,
       content: content.trim(),
       parent_id: parent_id ?? null,

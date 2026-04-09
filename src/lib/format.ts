@@ -18,12 +18,13 @@ export function parseTime(timeStr: string): number | null {
 
 /**
  * Format a timestamp comment display
- * Point: "2:45" / Range: "3:30 - 3:45"
+ * Point: "2:45" / Range: "3:30 - 3:45" / General: null
  */
 export function formatCommentTime(
-  timeStart: number,
+  timeStart: number | null,
   timeEnd: number | null
-): string {
+): string | null {
+  if (timeStart == null) return null;
   if (timeEnd != null) {
     return `${formatTime(timeStart)} - ${formatTime(timeEnd)}`;
   }

@@ -15,15 +15,15 @@ export default function CommentMarkers({
 }: CommentMarkersProps) {
   if (duration <= 0) return null;
 
-  const topLevel = comments.filter((c) => !c.parent_id);
+  const topLevel = comments.filter((c) => !c.parent_id && c.time_start != null);
 
   return (
     <div className="relative h-4 w-full">
       {topLevel.map((comment) => {
-        const left = (comment.time_start / duration) * 100;
+        const left = (comment.time_start! / duration) * 100;
         const isRange = comment.time_end != null;
         const width = isRange
-          ? ((comment.time_end! - comment.time_start) / duration) * 100
+          ? ((comment.time_end! - comment.time_start!) / duration) * 100
           : undefined;
 
         return (

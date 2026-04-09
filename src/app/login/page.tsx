@@ -25,7 +25,7 @@ export default function LoginPage() {
       })
       .catch(() => {});
 
-    // Fetch members list (names only, no auth needed — we expose this via a simple endpoint)
+    // Fetch members list
     fetch("/api/members")
       .then((r) => r.json())
       .then((data) => setMembers(data.members || []))
@@ -59,15 +59,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-slate-100 text-center mb-8">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 text-center mb-8">
           Song Study
         </h1>
 
         {!selectedMember ? (
           <div className="space-y-3">
-            <p className="text-slate-400 text-center text-sm mb-4">
+            <p className="text-slate-500 dark:text-slate-400 text-center text-sm mb-4">
               멤버를 선택하세요
             </p>
             {members.map((m) => (
@@ -81,7 +81,7 @@ export default function LoginPage() {
               </button>
             ))}
             {members.length === 0 && (
-              <p className="text-slate-500 text-center text-sm">
+              <p className="text-slate-400 dark:text-slate-500 text-center text-sm">
                 멤버 목록을 불러오는 중...
               </p>
             )}
@@ -94,7 +94,7 @@ export default function LoginPage() {
                 setPin("");
                 setError("");
               }}
-              className="text-slate-400 hover:text-slate-200 text-sm py-2 pr-2"
+              className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm py-2 pr-2"
             >
               &larr; 뒤로
             </button>
@@ -104,7 +104,7 @@ export default function LoginPage() {
                 className="inline-block w-16 h-16 rounded-full mb-3"
                 style={{ backgroundColor: selectedMember.color }}
               />
-              <p className="text-xl font-bold text-slate-100">
+              <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
                 {selectedMember.name}
               </p>
             </div>
@@ -118,19 +118,19 @@ export default function LoginPage() {
                 value={pin}
                 onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                className="w-full bg-slate-800 text-slate-100 text-center text-2xl tracking-[0.5em] py-3 px-4 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none placeholder:text-sm placeholder:tracking-normal"
+                className="w-full bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-center text-2xl tracking-[0.5em] py-3 px-4 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-indigo-500 focus:outline-none placeholder:text-sm placeholder:tracking-normal"
                 autoFocus
               />
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm text-center">{error}</p>
+              <p className="text-red-500 dark:text-red-400 text-sm text-center">{error}</p>
             )}
 
             <button
               onClick={handleLogin}
               disabled={loading || pin.length < 4}
-              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:text-slate-500 text-white font-medium rounded-lg transition-colors"
+              className="w-full py-3 px-4 bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-200 dark:disabled:bg-slate-700 disabled:text-gray-400 dark:disabled:text-slate-500 text-white font-medium rounded-lg transition-colors"
             >
               {loading ? "로그인 중..." : "로그인"}
             </button>

@@ -1,7 +1,5 @@
 "use client";
 
-export const runtime = "edge";
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -15,6 +13,12 @@ const WaveformPlayer = dynamic(
   { ssr: false }
 );
 
+interface MemberInfo {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export default function SongDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -24,6 +28,7 @@ export default function SongDetailPage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [currentMember, setCurrentMember] = useState<MemberInfo | null>(null);
 
   // Comment form state
   const [commentTimeStart, setCommentTimeStart] = useState<number | null>(null);
@@ -32,6 +37,16 @@ export default function SongDetailPage() {
   const [regionMode, setRegionMode] = useState(false);
 
   const songId = params.id as string;
+
+  // Fetch current member
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.member) setCurrentMember(data.member);
+      })
+      .catch(() => {});
+  }, []);
 
   // Fetch song
   useEffect(() => {
@@ -69,6 +84,14 @@ export default function SongDetailPage() {
   const handleCommentAtCurrentTime = useCallback(() => {
     const time = playerRef.current?.getCurrentTime() ?? 0;
     setCommentTimeStart(time);
+    setCommentTimeEnd(null);
+    setShowCommentForm(true);
+    setRegionMode(false);
+  }, []);
+
+  // General comment (no timestamp)
+  const handleGeneralComment = useCallback(() => {
+    setCommentTimeStart(null);
     setCommentTimeEnd(null);
     setShowCommentForm(true);
     setRegionMode(false);
@@ -112,16 +135,16 @@ export default function SongDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900">
+      <div className="min-h-screen bg-white dark:bg-slate-900">
         <div className="max-w-2xl mx-auto px-4 pt-6 animate-pulse">
-          <div className="h-4 bg-slate-800 rounded w-1/3 mb-2" />
-          <div className="h-3 bg-slate-800/60 rounded w-1/5 mb-6" />
-          <div className="bg-slate-800 rounded-lg h-24 mb-4" />
+          <div className="h-4 bg-gray-200 dark:bg-slate-800 rounded w-1/3 mb-2" />
+          <div className="h-3 bg-gray-100 dark:bg-slate-800/60 rounded w-1/5 mb-6" />
+          <div className="bg-gray-100 dark:bg-slate-800 rounded-lg h-24 mb-4" />
           <div className="space-y-3">
             {[1, 2].map((i) => (
-              <div key={i} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
-                <div className="h-3 bg-slate-700 rounded w-1/4 mb-2" />
-                <div className="h-3 bg-slate-700/60 rounded w-3/4" />
+              <div key={i} className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 border border-gray-200 dark:border-slate-700/50">
+                <div className="h-3 bg-gray-200 dark:bg-slate-700 rounded w-1/4 mb-2" />
+                <div className="h-3 bg-gray-100 dark:bg-slate-700/60 rounded w-3/4" />
               </div>
             ))}
           </div>
@@ -133,29 +156,29 @@ export default function SongDetailPage() {
   if (!song) return null;
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-white dark:bg-slate-900">
       {/* Sticky player area */}
-      <div className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800">
+      <div className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-slate-800">
         <div className="max-w-2xl mx-auto px-4 pt-3 pb-3">
           {/* Header */}
           <div className="flex items-center gap-3 mb-3">
             <button
               onClick={() => router.push("/")}
-              className="text-slate-400 hover:text-slate-200 text-sm shrink-0 p-2 -ml-2"
+              className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm shrink-0 p-2 -ml-2"
             >
               &larr;
             </button>
             <div className="min-w-0">
-              <h1 className="text-sm font-bold text-slate-100 truncate">
+              <h1 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
                 {song.title}
               </h1>
-              <p className="text-xs text-slate-400 truncate">{song.artist}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{song.artist}</p>
             </div>
           </div>
 
           {/* Waveform player */}
           {!song.audio_url ? (
-            <div className="bg-slate-800/50 rounded-lg p-4 text-center border border-slate-700/50">
+            <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 text-center border border-gray-200 dark:border-slate-700/50">
               <p className="text-slate-500 text-sm">오디오 파일을 불러올 수 없습니다.</p>
             </div>
           ) : (
@@ -167,6 +190,7 @@ export default function SongDetailPage() {
               onMarkerClick={handleMarkerClick}
               onCommentAtCurrentTime={handleCommentAtCurrentTime}
               onRegionModeToggle={handleRegionModeToggle}
+              onGeneralComment={handleGeneralComment}
               regionMode={regionMode}
               commentFormTime={commentTimeStart}
             />
@@ -178,7 +202,7 @@ export default function SongDetailPage() {
       <div className="max-w-2xl mx-auto px-4 py-4">
         {/* Comment form */}
         {showCommentForm && (
-          <div className="mb-4 bg-slate-800/50 rounded-lg p-3 border border-slate-700/50">
+          <div className="mb-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg p-3 border border-gray-200 dark:border-slate-700/50">
             <CommentForm
               songId={songId}
               timeStart={commentTimeStart}
@@ -200,6 +224,7 @@ export default function SongDetailPage() {
           onTimestampClick={handleTimestampClick}
           onRefresh={fetchComments}
           highlightId={highlightId}
+          currentMember={currentMember}
         />
       </div>
     </div>

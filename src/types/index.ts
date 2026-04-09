@@ -25,7 +25,7 @@ export interface Comment {
   id: string;
   song_id: string;
   member_id: string;
-  time_start: number;
+  time_start: number | null;
   time_end: number | null;
   parent_id: string | null;
   content: string;

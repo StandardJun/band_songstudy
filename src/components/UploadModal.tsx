@@ -79,12 +79,12 @@ export default function UploadModal({
       />
 
       {/* Modal */}
-      <div className="relative bg-slate-800 rounded-xl w-full max-w-md p-6 border border-slate-700">
+      <div className="relative bg-white dark:bg-slate-800 rounded-xl w-full max-w-md p-6 border border-gray-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-slate-100">곡 업로드</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">곡 업로드</h2>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
           >
             ✕
           </button>
@@ -92,7 +92,7 @@ export default function UploadModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm text-slate-400 mb-1">
+            <label className="block text-sm text-slate-500 dark:text-slate-400 mb-1">
               오디오 파일
             </label>
             <input
@@ -100,23 +100,23 @@ export default function UploadModal({
               type="file"
               accept="audio/*"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="w-full text-sm text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-700 file:text-slate-200 file:cursor-pointer hover:file:bg-slate-600"
+              className="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 dark:file:bg-slate-700 file:text-slate-700 dark:file:text-slate-200 file:cursor-pointer hover:file:bg-gray-200 dark:hover:file:bg-slate-600"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-slate-400 mb-1">제목</label>
+            <label className="block text-sm text-slate-500 dark:text-slate-400 mb-1">제목</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="곡 제목"
-              className="w-full bg-slate-900 text-slate-100 py-2 px-3 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none text-sm"
+              className="w-full bg-gray-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 py-2 px-3 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-indigo-500 focus:outline-none text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-slate-400 mb-1">
+            <label className="block text-sm text-slate-500 dark:text-slate-400 mb-1">
               아티스트
             </label>
             <input
@@ -124,12 +124,12 @@ export default function UploadModal({
               value={artist}
               onChange={(e) => setArtist(e.target.value)}
               placeholder="아티스트명"
-              className="w-full bg-slate-900 text-slate-100 py-2 px-3 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none text-sm"
+              className="w-full bg-gray-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 py-2 px-3 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-indigo-500 focus:outline-none text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-slate-400 mb-1">
+            <label className="block text-sm text-slate-500 dark:text-slate-400 mb-1">
               주차
             </label>
             <input
@@ -138,16 +138,16 @@ export default function UploadModal({
               onChange={(e) => setWeekNumber(e.target.value)}
               placeholder="1"
               min={1}
-              className="w-full bg-slate-900 text-slate-100 py-2 px-3 rounded-lg border border-slate-700 focus:border-blue-500 focus:outline-none text-sm"
+              className="w-full bg-gray-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 py-2 px-3 rounded-lg border border-gray-200 dark:border-slate-700 focus:border-indigo-500 focus:outline-none text-sm"
             />
           </div>
 
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:text-slate-500 text-white font-medium rounded-lg transition-colors text-sm"
+            className="w-full py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-200 dark:disabled:bg-slate-700 disabled:text-gray-400 dark:disabled:text-slate-500 text-white font-medium rounded-lg transition-colors text-sm"
           >
             {loading ? "업로드 중..." : "업로드"}
           </button>
