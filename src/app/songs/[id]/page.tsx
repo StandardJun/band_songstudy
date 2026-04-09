@@ -36,6 +36,16 @@ export default function SongDetailPage() {
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [regionMode, setRegionMode] = useState(false);
 
+  // Song edit/delete state
+  const [showSongMenu, setShowSongMenu] = useState(false);
+  const [showEditSong, setShowEditSong] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editArtist, setEditArtist] = useState("");
+  const [editWeek, setEditWeek] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const songId = params.id as string;
 
   // Fetch current member
@@ -117,6 +127,47 @@ export default function SongDetailPage() {
     setTimeout(() => setHighlightId(null), 2000);
   }, []);
 
+  // Song edit
+  const handleEditSong = async () => {
+    setEditLoading(true);
+    try {
+      const res = await fetch(`/api/songs/${songId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: editTitle, artist: editArtist, week_number: editWeek }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || "수정 실패");
+        return;
+      }
+      setSong((prev) => prev ? { ...prev, title: editTitle, artist: editArtist, week_number: parseInt(editWeek) } : prev);
+      setShowEditSong(false);
+    } catch {
+      alert("수정 실패");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  // Song delete
+  const handleDeleteSong = async () => {
+    setDeleteLoading(true);
+    try {
+      const res = await fetch(`/api/songs/${songId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || "삭제 실패");
+        return;
+      }
+      router.replace("/");
+    } catch {
+      alert("삭제 실패");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   // After comment submit
   const handleCommentSubmit = useCallback(() => {
     setShowCommentForm(false);
@@ -160,12 +211,53 @@ export default function SongDetailPage() {
             >
               &larr;
             </button>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h1 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
                 {song.title}
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{song.artist}</p>
             </div>
+            {/* Song menu (owner only) */}
+            {currentMember && song.member?.id === currentMember.id && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowSongMenu((v) => !v)}
+                  className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                  </svg>
+                </button>
+                {showSongMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowSongMenu(false)} />
+                    <div className="absolute right-0 top-10 z-50 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg py-1 min-w-[120px]">
+                      <button
+                        onClick={() => {
+                          setEditTitle(song.title);
+                          setEditArtist(song.artist);
+                          setEditWeek(String(song.week_number));
+                          setShowEditSong(true);
+                          setShowSongMenu(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                      >
+                        수정
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowDeleteConfirm(true);
+                          setShowSongMenu(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-slate-700"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Waveform player */}
@@ -219,6 +311,88 @@ export default function SongDetailPage() {
           currentMember={currentMember}
         />
       </div>
+
+      {/* Edit song modal */}
+      {showEditSong && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-sm border border-gray-200 dark:border-slate-700">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">곡 정보 수정</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">제목</label>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">아티스트</label>
+                <input
+                  type="text"
+                  value={editArtist}
+                  onChange={(e) => setEditArtist(e.target.value)}
+                  className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">주차</label>
+                <input
+                  type="number"
+                  value={editWeek}
+                  onChange={(e) => setEditWeek(e.target.value)}
+                  min={1}
+                  className="w-full bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setShowEditSong(false)}
+                className="flex-1 text-slate-500 dark:text-slate-400 text-sm py-2.5 rounded-lg border border-gray-300 dark:border-slate-600"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleEditSong}
+                disabled={editLoading}
+                className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
+              >
+                {editLoading ? "수정 중..." : "수정"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirm modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-sm border border-gray-200 dark:border-slate-700">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">곡 삭제</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+              &quot;{song.title}&quot;을(를) 삭제하시겠습니까?<br />
+              <span className="text-red-500">댓글도 모두 함께 삭제됩니다.</span>
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 text-slate-500 dark:text-slate-400 text-sm py-2.5 rounded-lg border border-gray-300 dark:border-slate-600"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDeleteSong}
+                disabled={deleteLoading}
+                className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
+              >
+                {deleteLoading ? "삭제 중..." : "삭제"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
