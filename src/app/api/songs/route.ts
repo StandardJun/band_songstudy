@@ -36,7 +36,7 @@ export async function GET() {
   return Response.json({ songs: transformed });
 }
 
-// POST /api/songs — upload a new song
+// POST /api/songs — save song metadata (file already uploaded to Storage by client)
 export async function POST(request: Request) {
   const member = await getCurrentMember();
   if (!member) {
@@ -44,13 +44,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-    const title = formData.get("title") as string;
-    const artist = formData.get("artist") as string;
-    const weekNumber = formData.get("week_number") as string;
+    const { title, artist, week_number, storage_path } = await request.json();
 
-    if (!file || !title || !artist || !weekNumber) {
+    if (!title || !artist || !week_number || !storage_path) {
       return Response.json(
         { error: "모든 필드를 입력해주세요." },
         { status: 400 }
@@ -59,31 +55,13 @@ export async function POST(request: Request) {
 
     const supabase = createServerClient();
 
-    // Upload file to Supabase Storage
-    const ext = file.name.split(".").pop() || "mp3";
-    const storagePath = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("songs")
-      .upload(storagePath, file, {
-        contentType: file.type || "audio/mpeg",
-      });
-
-    if (uploadError) {
-      return Response.json(
-        { error: `업로드 실패: ${uploadError.message}` },
-        { status: 500 }
-      );
-    }
-
-    // Insert song record
     const { data: song, error: insertError } = await supabase
       .from("songs")
       .insert({
         title,
         artist,
-        storage_path: storagePath,
-        week_number: parseInt(weekNumber),
+        storage_path,
+        week_number: parseInt(week_number),
         uploaded_by: member.id,
       })
       .select()

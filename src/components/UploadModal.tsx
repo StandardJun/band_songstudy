@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { createBrowserClient } from "@/lib/supabase";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -43,15 +44,32 @@ export default function UploadModal({
     setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("title", title);
-      formData.append("artist", artist);
-      formData.append("week_number", weekNumber);
+      // 1. Upload file directly to Supabase Storage (bypasses Vercel body limit)
+      const supabase = createBrowserClient();
+      const ext = file.name.split(".").pop() || "mp3";
+      const storagePath = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
 
+      const { error: uploadError } = await supabase.storage
+        .from("songs")
+        .upload(storagePath, file, {
+          contentType: file.type || "audio/mpeg",
+        });
+
+      if (uploadError) {
+        setError(`파일 업로드 실패: ${uploadError.message}`);
+        return;
+      }
+
+      // 2. Save metadata via API
       const res = await fetch("/api/songs", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          artist,
+          week_number: weekNumber,
+          storage_path: storagePath,
+        }),
       });
 
       const data = await res.json();
