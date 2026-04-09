@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { createBrowserClient } from "@/lib/supabase";
+import { compressAudioToMp3, type CompressProgress } from "@/lib/audio-compress";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export default function UploadModal({
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [progress, setProgress] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -42,17 +44,39 @@ export default function UploadModal({
 
     setLoading(true);
     setError("");
+    setProgress(null);
 
     try {
-      // 1. Upload file directly to Supabase Storage (bypasses Vercel body limit)
+      // 0. Compress audio if > 10MB
+      let uploadFile = file;
+      if (file.size > 10 * 1024 * 1024) {
+        setProgress("오디오 압축 중...");
+        try {
+          uploadFile = await compressAudioToMp3(file, (p: CompressProgress) => {
+            if (p.stage === "decoding") {
+              setProgress("오디오 디코딩 중...");
+            } else {
+              setProgress(`MP3 변환 중... ${p.percent}%`);
+            }
+          });
+          const savedMB = ((file.size - uploadFile.size) / 1024 / 1024).toFixed(1);
+          setProgress(`압축 완료 (${savedMB}MB 절약). 업로드 중...`);
+        } catch {
+          setError("오디오 압축에 실패했습니다. 파일 형식을 확인해주세요.");
+          return;
+        }
+      }
+
+      // 1. Upload file directly to Supabase Storage
+      setProgress((prev) => prev?.includes("업로드") ? prev : "업로드 중...");
       const supabase = createBrowserClient();
-      const ext = file.name.split(".").pop() || "mp3";
+      const ext = uploadFile.name.split(".").pop() || "mp3";
       const storagePath = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from("songs")
-        .upload(storagePath, file, {
-          contentType: file.type || "audio/mpeg",
+        .upload(storagePath, uploadFile, {
+          contentType: uploadFile.type || "audio/mpeg",
         });
 
       if (uploadError) {
@@ -161,13 +185,21 @@ export default function UploadModal({
           </div>
 
           {error && <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>}
+          {loading && progress && (
+            <p className="text-slate-500 dark:text-slate-400 text-sm">{progress}</p>
+          )}
+          {file && file.size > 10 * 1024 * 1024 && !loading && (
+            <p className="text-xs text-slate-400">
+              {(file.size / 1024 / 1024).toFixed(1)}MB — 업로드 시 MP3 128kbps로 자동 압축됩니다
+            </p>
+          )}
 
           <button
             type="submit"
             disabled={loading}
             className="w-full py-2.5 bg-red-500 hover:bg-red-600 disabled:bg-gray-200 dark:disabled:bg-slate-700 disabled:text-gray-400 dark:disabled:text-slate-500 text-white font-medium rounded-lg transition-colors text-sm"
           >
-            {loading ? "업로드 중..." : "업로드"}
+            {loading ? (progress || "업로드 중...") : "업로드"}
           </button>
         </form>
       </div>
